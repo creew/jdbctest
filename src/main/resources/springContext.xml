@@ -10,7 +10,8 @@
 
     <bean id="connection"
           factory-bean="serviceJdbcConnection"
-          factory-method="getConnection"/>
+          factory-method="getConnection"
+    />
 
     <bean id="crudRepository" class="org.example.CrudRepositoryDatabase">
         <constructor-arg ref="connection"/>
