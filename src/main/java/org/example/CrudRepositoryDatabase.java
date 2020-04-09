@@ -1,41 +1,44 @@
 package org.example;
 
+import org.example.entity.Client;
+import org.example.entity.Entity;
 import org.example.exceptions.CrudException;
 import org.example.exceptions.CrudExceptionNotFound;
 import org.jetbrains.annotations.NotNull;
-import org.example.entity.Entity;
 
 import java.sql.*;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
+public class CrudRepositoryDatabase implements CrudRepository<Long, Client> {
     private static final String SQL_ERROR = "Sql error: ";
 
-    private final Connection connection;
+    private Connection connection;
 
-    private final String table;
+    private Map<String, String> map;
 
-    public CrudRepositoryDatabase(Connection connection, String table) throws CrudException {
+    private String table;
+
+    public CrudRepositoryDatabase(Connection connection) {
         this.connection = connection;
-        this.table = table;
-        try (Statement statement = this.connection.createStatement()) {
-            String sqlCreate = "CREATE TABLE IF NOT EXISTS " + this.table
-                    + "  (first_name      VARCHAR(50),"
-                    + "   last_name       VARCHAR(50),"
-                    + "   id              INT(10) NOT NULL PRIMARY KEY AUTO_INCREMENT)";
-            statement.execute(sqlCreate);
-        } catch (SQLException e) {
-            throw new CrudException(SQL_ERROR + e.getMessage());
-        }
+        map = Entity.getNamesAndField(Client.class);
+        table = Entity.getTableName(Client.class);
     }
 
     @Override
-    public Long create(@NotNull Entity object) throws CrudException {
+    public Long create(@NotNull Client object) throws CrudException {
         try (Statement statement = connection.createStatement()) {
-            String sqlCreate = "INSERT INTO " + table
-                    + "  (first_name, last_name) "
-                    + "  VALUES ("
-                    + "'" + object.getFirstName() + "',"
-                    + "'" + object.getLastName() + "')";
+            String keys = String.join(", ", map.keySet());
+            String values = map.values().stream().map(value -> {
+                try {
+                    return "'" + object.getValue(value).toString() + "'";
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).collect(Collectors.joining(", "));
+            String sqlCreate = "INSERT INTO " + table + "  (" + keys + ") "
+                    + "  VALUES (" + values + ")";
             if (statement.executeUpdate(sqlCreate, Statement.RETURN_GENERATED_KEYS) == 0)
                 throw new CrudException("No changes in repository");
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -51,18 +54,22 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
     }
 
     @Override
-    public Entity read(@NotNull Long key) throws CrudException {
-
+    public Client read(@NotNull Long key) throws CrudException {
+        String keys = String.join(", ", map.keySet());
         try (Statement statement = connection.createStatement()) {
-            String sqlSelect = "SELECT first_name, last_name FROM " + table
+            String sqlSelect = "SELECT " + keys + " FROM " + table
                     + " WHERE id = " + key;
             try (ResultSet rs = statement.executeQuery(sqlSelect)) {
                 if (rs.next()) {
-                    String firstName = rs.getString("first_name");
-                    String lastName = rs.getString("last_name");
-                    return new Entity(firstName, lastName);
+                    Client client = new Client();
+                    for (Map.Entry<String, String> entry : map.entrySet()) {
+                        client.setValue(entry.getValue(), rs.getObject(entry.getKey()));
+                    }
+                    return client;
                 }
                 throw new CrudExceptionNotFound();
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new CrudException("Reflection error: " + e.getMessage());
             }
         } catch (SQLException e) {
             throw new CrudException(SQL_ERROR + e.getMessage());
@@ -70,12 +77,20 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
     }
 
     @Override
-    public void update(@NotNull Long key, @NotNull Entity value) throws CrudException {
-        String sqlUpdate = "UPDATE " + table + " SET first_name=?, last_name=? WHERE id = ?";
+    public void update(@NotNull Long key, @NotNull Client value) throws CrudException {
+        String setString = map.entrySet().stream()
+                .map(entry -> {
+                    try {
+                        return entry.getKey() + "=" + "'" + value.getValue(entry.getValue()) + "'";
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                })
+                .collect(Collectors.joining(", "));
+        String sqlUpdate = "UPDATE " + table + " SET " + setString + " WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sqlUpdate)) {
-            statement.setString(1, value.getFirstName());
-            statement.setString(2, value.getLastName());
-            statement.setLong(3, key);
+            statement.setLong(1, key);
             if (statement.executeUpdate() == 0) {
                 throw new CrudExceptionNotFound();
             }
@@ -96,4 +111,6 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
             throw new CrudException(SQL_ERROR + e.getMessage());
         }
     }
+
+
 }
