@@ -1,16 +1,13 @@
 package org.example;
 
-import org.example.entity.Client;
-import org.example.exceptions.CrudException;
+import org.example.service.RestService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Main {
-    public static void main(String[] args) throws CrudException {
+    public static void main(String[] args) {
         ApplicationContext fileSystemXmlApplicationContext = new ClassPathXmlApplicationContext("springContext.xml");
-        CrudRepository<Long, Client> repository =  fileSystemXmlApplicationContext.getBean(CrudRepository.class);
-        Long key = repository.create(new Client("Tutanhomon", "I"));
-        Client client = repository.read(key);
-        System.out.println(client);
+        RestService restService = fileSystemXmlApplicationContext.getBean(RestService.class);
+        restService.start();
     }
 }

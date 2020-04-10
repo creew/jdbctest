@@ -1,4 +1,4 @@
-package org.example;
+package org.example.dao;
 
 import org.example.entity.Client;
 import org.example.entity.Entity;
@@ -111,6 +111,4 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Client> {
             throw new CrudException(SQL_ERROR + e.getMessage());
         }
     }
-
-
 }
