@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.dao.CrudRepository;
+import org.example.dao.CrudRepositoryDatabase;
 import org.example.entity.Client;
 import org.example.exceptions.CrudException;
 import org.example.exceptions.CrudExceptionNotFound;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/springContext.xml")
+@ContextConfiguration("/testSpringContext.xml")
 public class TestExample {
 
     private static final String DB = "test";
