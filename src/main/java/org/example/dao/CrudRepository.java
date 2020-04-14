@@ -1,6 +1,6 @@
 package org.example.dao;
 
-import org.example.exceptions.CrudException;
+import org.example.exception.CrudException;
 import org.jetbrains.annotations.NotNull;
 
 public interface CrudRepository<K, V> {

@@ -2,6 +2,7 @@ package org.example.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.example.entity.Client;
+import org.example.service.server.ServerService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/testSpringContext.xml")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class HttpRestServiceTest {
+class HttpServerServiceTest {
 
     private static final String CONTEXT = "/v1/client";
 
@@ -42,7 +43,7 @@ class HttpRestServiceTest {
     }
 
     @Autowired
-    RestService service;
+    ServerService service;
 
     @Test
     void shouldPutBeOk() {
@@ -66,8 +67,8 @@ class HttpRestServiceTest {
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
         long id = responseEntity.getBody().get("ID").asLong();
         ResponseEntity<Client> clientResponseEntity = restTemplate.getForEntity(PATH + "/" + id, Client.class);
-        assertEquals(clientResponseEntity.getBody().getFirstName(), "bar");
-        assertEquals(clientResponseEntity.getBody().getLastName(), "sadas");
+        assertEquals("bar", clientResponseEntity.getBody().getFirstName());
+        assertEquals("sadas", clientResponseEntity.getBody().getLastName());
     }
 
     @Test
@@ -99,7 +100,7 @@ class HttpRestServiceTest {
         ResponseEntity<JsonNode> responseDelete = restTemplate.exchange(PATH + "/" + id
                 , HttpMethod.DELETE
                 ,null, JsonNode.class);
-        assertEquals(responseDelete.getStatusCode(), HttpStatus.NO_CONTENT);
+        assertEquals(HttpStatus.NO_CONTENT, responseDelete.getStatusCode());
         assertThrows(HttpClientErrorException.class,
                 () -> restTemplate.getForEntity(PATH + "/" + id, Client.class));
     }

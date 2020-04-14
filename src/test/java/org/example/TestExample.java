@@ -3,9 +3,9 @@ package org.example;
 import org.example.dao.CrudRepository;
 import org.example.dao.CrudRepositoryDatabase;
 import org.example.entity.Client;
-import org.example.exceptions.CrudException;
-import org.example.exceptions.CrudExceptionNotFound;
-import org.h2.tools.DeleteDbFiles;
+import org.example.exception.CrudException;
+import org.example.exception.CrudExceptionNotFound;
+import org.example.service.connection.JdbcConnection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,17 +27,12 @@ public class TestExample {
     @Autowired
     Connection connection;
 
+    @Autowired
+    JdbcConnection jdbcConnection;
+
     @BeforeEach
     public void before() throws SQLException {
-        DeleteDbFiles.execute("~", DB, true);
-        try (Statement statement = connection.createStatement()) {
-            String params = Client.getNamesAndTypes(Client.class).entrySet().stream()
-                    .map(entry -> entry.getKey() + " " + entry.getValue())
-                    .collect(Collectors.joining(", "));
-            String sqlCreate = "CREATE TABLE IF NOT EXISTS " + Client.getTableName(Client.class)
-                    + "  (" + params + ")";
-            statement.execute(sqlCreate);
-        }
+        jdbcConnection.init();
     }
 
     @Test

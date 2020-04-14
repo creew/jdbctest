@@ -2,8 +2,8 @@ package org.example.dao;
 
 import org.example.entity.Client;
 import org.example.entity.Entity;
-import org.example.exceptions.CrudException;
-import org.example.exceptions.CrudExceptionNotFound;
+import org.example.exception.CrudException;
+import org.example.exception.CrudExceptionNotFound;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
@@ -38,7 +38,7 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Client> {
                 return null;
             }).collect(Collectors.joining(", "));
             String sqlCreate = "INSERT INTO " + table + "  (" + keys + ") "
-                    + "  VALUES (" + values + ")";
+                    + "  VALUES (" + values + ") RETURNING id";
             if (statement.executeUpdate(sqlCreate, Statement.RETURN_GENERATED_KEYS) == 0)
                 throw new CrudException("No changes in repository");
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
