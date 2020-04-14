@@ -13,11 +13,12 @@
           factory-method="getConnection"
     />
 
-    <bean id="crudRepository" class="org.example.dao.CrudRepositoryDatabase">
+    <bean id="crudRepository" class="org.example.dao.CrudRepositoryClient">
         <constructor-arg ref="connection"/>
     </bean>
 
-    <bean id="httpRestService" class="org.example.service.server.JettyRestService">
+    <bean id="httpRestService" class="org.example.service.server.HttpRestService">
+        <constructor-arg ref="crudRepository"/>
         <constructor-arg value="8080"/>
     </bean>
 </beans>

@@ -13,7 +13,7 @@
           factory-method="getConnection"
     />
 
-    <bean id="crudRepository" class="org.example.dao.CrudRepositoryDatabase">
+    <bean id="crudRepository" class="org.example.dao.CrudRepositoryClient">
         <constructor-arg ref="connection"/>
     </bean>
 

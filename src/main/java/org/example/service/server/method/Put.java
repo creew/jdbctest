@@ -20,9 +20,9 @@ public class Put implements HttpMethodRunner {
         if (paths.length != 0)
             throw new NumberFormatException();
         Client client = JsonConverter.parseRequestBody(Client.class, is);
-        long id = repository.create(client);
+        Object id = repository.create(client);
         Response response = new Response(HttpURLConnection.HTTP_CREATED);
-        writeMessage(new WriterOutputStream(response.getBody()), HTTP_MESSAGE_OK, "ID", Long.toString(id));
+        writeMessage(new WriterOutputStream(response.getBody()), HTTP_MESSAGE_OK, "ID", id.toString());
         return response;
     }
 }
