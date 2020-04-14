@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.connection;
 
 import org.example.entity.Client;
 import org.example.entity.Entity;
@@ -9,25 +9,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
 
-public class JdbcConnectionImpl implements JdbcConnection{
-    private static final String URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE;Mode=Oracle";
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "";
+public class JdbcConnectionPostgre implements JdbcConnection {
+
+    private static final String URL = "jdbc:postgresql://localhost/service_db";
+
+    private static final String USERNAME = "admin";
+
+    private static final String PASSWORD = "pass";
 
     private static Connection connection;
-
-    static {
-        try {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public Connection getConnection() {
         try {
-            init();
+            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
         } catch (SQLException e) {
             e.printStackTrace();
         }

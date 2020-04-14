@@ -1,4 +1,4 @@
-package org.example.exceptions;
+package org.example.exception;
 
 public class JsonException extends Exception {
     public JsonException(String message) {

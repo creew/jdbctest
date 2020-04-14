@@ -1,4 +1,4 @@
-package org.example.annotations;
+package org.example.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(value= RetentionPolicy.RUNTIME)
-@Target(value= ElementType.FIELD)
-public @interface JdbcField {
-    String name();
-    String type();
+@Target(value= ElementType.TYPE)
+public @interface JdbcTable {
+    String table();
 }
