@@ -1,12 +1,11 @@
 package org.example;
 
 import org.example.dao.CrudRepository;
-import org.example.dao.CrudRepositoryDatabase;
+import org.example.dao.CrudRepositoryClient;
 import org.example.entity.Client;
 import org.example.exception.CrudException;
 import org.example.exception.CrudExceptionNotFound;
 import org.example.service.connection.JdbcConnection;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,15 +28,10 @@ public class TestExample {
     @Autowired
     JdbcConnection jdbcConnection;
 
-    @BeforeEach
-    public void before() throws SQLException {
-        jdbcConnection.init();
-    }
-
     @Test
     void shouldOkCreateRepo() {
         assertDoesNotThrow(() -> {
-            new CrudRepositoryDatabase(connection);
+            new CrudRepositoryClient(connection);
         });
     }
 

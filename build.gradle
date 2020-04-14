@@ -35,6 +35,9 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     testCompile group: 'org.springframework', name: 'spring-test', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-web', version: '5.2.5.RELEASE'
+
+    compile group: 'org.jooq', name: 'jooq', version: '3.13.1'
+
 }
 
 test {
