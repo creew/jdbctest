@@ -91,4 +91,23 @@ public class TestExample {
         assertThrows(CrudExceptionNotFound.class, () -> repo.update(100L, new Entity("1", "2")));
         assertThrows(CrudExceptionNotFound.class, () -> repo.delete(100L));
     }
+
+    Entity createMaliciuosEntity() {
+        return new Entity("1','2'); DROP TABLE clients;'", "");
+    }
+
+    @Test
+    void maliciousRequestTest() throws CrudException {
+        CrudRepository<Long, Entity> repo = new CrudRepositoryDatabase(connection, TABLE);
+        Long key = repo.create(new Entity("Vasya", "Petrov"));
+        assertNotNull(key);
+        Entity maliciousEntity = createMaliciuosEntity();
+        try {
+            repo.create(maliciousEntity);
+        } catch (Exception ex) {
+            System.out.println("Hacked");
+        }
+        Entity entityFromDb = repo.read(key);
+        assertNotNull(entityFromDb);
+    }
 }
