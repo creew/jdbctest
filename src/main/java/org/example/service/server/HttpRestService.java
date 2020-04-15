@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.example.dao.CrudRepository;
-import org.example.entity.Client;
+import org.example.entity.User;
 import org.example.exception.CrudException;
 import org.example.exception.JsonException;
 import org.example.service.server.method.*;
@@ -20,13 +20,13 @@ import static org.example.service.server.method.CodesConstants.HTTP_MESSAGE_NOT_
 
 public class HttpRestService implements ServerService {
 
-    private static final String CONTEXT = "/v1/client";
+    private static final String CONTEXT = "/v1/user";
 
-    private CrudRepository<Long, Client> repository;
+    private CrudRepository<Long, User> repository;
 
     private HttpServer server;
 
-    public HttpRestService(CrudRepository<Long, Client> repository, int port) throws IOException {
+    public HttpRestService(CrudRepository<Long, User> repository, int port) throws IOException {
         this.repository = repository;
         server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
         server.createContext(CONTEXT, new MyHttpHandler());

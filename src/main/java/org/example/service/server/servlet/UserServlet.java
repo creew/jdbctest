@@ -2,7 +2,7 @@ package org.example.service.server.servlet;
 
 import org.eclipse.jetty.io.WriterOutputStream;
 import org.example.dao.CrudRepository;
-import org.example.entity.Client;
+import org.example.entity.User;
 import org.example.exception.CrudException;
 import org.example.exception.JsonException;
 import org.example.service.JsonConverter;
@@ -19,14 +19,14 @@ import java.io.Writer;
 import static org.example.service.server.method.CodesConstants.HTTP_MESSAGE_INVALID_REQUEST;
 import static org.example.service.server.method.CodesConstants.HTTP_MESSAGE_NOT_FOUND;
 
-public class ClientServlet extends HttpServlet {
+public class UserServlet extends HttpServlet {
 
-    private CrudRepository<Long, Client> repo;
+    private CrudRepository<Long, User> repo;
 
     @Override
     public void init(ServletConfig config) {
         ApplicationContext ac = (ApplicationContext)config.getServletContext().getAttribute("applicationContext");
-        this.repo = (CrudRepository<Long, Client>)ac.getBean("crudRepository");
+        this.repo = (CrudRepository<Long, User>)ac.getBean("crudRepository");
     }
 
     private String[] parsePath(String pathInfo) {
