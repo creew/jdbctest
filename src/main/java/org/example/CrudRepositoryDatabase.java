@@ -30,13 +30,13 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
 
     @Override
     public Long create(@NotNull Entity object) throws CrudException {
-        try (Statement statement = connection.createStatement()) {
-            String sqlCreate = "INSERT INTO " + table
-                    + "  (first_name, last_name) "
-                    + "  VALUES ("
-                    + "'" + object.getFirstName() + "',"
-                    + "'" + object.getLastName() + "')";
-            if (statement.executeUpdate(sqlCreate, Statement.RETURN_GENERATED_KEYS) == 0)
+        String sqlCreate = "INSERT INTO " + table
+                + "  (first_name, last_name) "
+                + "  VALUES (?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sqlCreate, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setObject(1, object.getFirstName());
+            statement.setObject(2, object.getLastName());
+            if (statement.executeUpdate() == 0)
                 throw new CrudException("No changes in repository");
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -52,11 +52,11 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
 
     @Override
     public Entity read(@NotNull Long key) throws CrudException {
-
-        try (Statement statement = connection.createStatement()) {
-            String sqlSelect = "SELECT first_name, last_name FROM " + table
-                    + " WHERE id = " + key;
-            try (ResultSet rs = statement.executeQuery(sqlSelect)) {
+        String sqlSelect = "SELECT first_name, last_name FROM " + table
+                + " WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sqlSelect)) {
+            statement.setObject(1, key);
+            try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     String firstName = rs.getString("first_name");
                     String lastName = rs.getString("last_name");
@@ -86,10 +86,11 @@ public class CrudRepositoryDatabase implements CrudRepository<Long, Entity> {
 
     @Override
     public void delete(@NotNull Long key) throws CrudException {
-        try (Statement statement = connection.createStatement()) {
-            String sqlDelete = "DELETE FROM " + table
-                    + " WHERE id = " + key;
-            if (statement.executeUpdate(sqlDelete) == 0) {
+        String sqlDelete = "DELETE FROM " + table
+                + " WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sqlDelete)) {
+            statement.setObject(1, key);
+            if (statement.executeUpdate() == 0) {
                 throw new CrudExceptionNotFound();
             }
         } catch (SQLException e) {
