@@ -59,7 +59,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
             }
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return Long.parseLong(generatedKeys.getObject(1).toString());
+                    return generatedKeys.getLong(1);
                 } else {
                     throw new CrudException("Creating entity failed, no ID obtained.");
                 }
