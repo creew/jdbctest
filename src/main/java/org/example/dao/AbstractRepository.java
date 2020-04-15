@@ -25,13 +25,13 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
 
     private String id;
 
-    private Class<?> clazz;
+    private Class<V> clazz;
 
     public AbstractRepository(Connection connection) {
         this.connection = connection;
     }
 
-    protected void init(Class<?> clazz) throws EntityException {
+    protected void init(Class<V> clazz) throws EntityException {
         this.clazz = clazz;
         namesAndFields = Entities.getNamesAndFields(clazz);
         table = Entities.getTableName(clazz);
@@ -77,7 +77,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
             statement.setObject(1, key);
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-                    V client = (V) clazz.getDeclaredConstructor().newInstance();
+                    V client = clazz.getDeclaredConstructor().newInstance();
                     for (Map.Entry<String, String> entry : namesAndFields.entrySet()) {
                         client.setValue(entry.getValue(), rs.getObject(entry.getKey()));
                     }

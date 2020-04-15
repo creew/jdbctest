@@ -9,6 +9,8 @@ import org.example.service.JsonConverter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 
 import static org.example.service.JsonConverter.writeMessage;
@@ -21,8 +23,9 @@ public class Put implements HttpMethodRunner {
             throw new NumberFormatException();
         User user = JsonConverter.parseRequestBody(User.class, is);
         Object id = repository.create(user);
-        Response response = new Response(HttpURLConnection.HTTP_CREATED);
-        writeMessage(new WriterOutputStream(response.getBody()), HTTP_MESSAGE_OK, "ID", id.toString());
-        return response;
+        try (Writer writer = new StringWriter()) {
+            writeMessage(new WriterOutputStream(writer), HTTP_MESSAGE_OK, "ID", id.toString());
+            return new Response(HttpURLConnection.HTTP_CREATED, writer);
+        }
     }
 }

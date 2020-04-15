@@ -21,9 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/testSpringContext.xml")
+@ContextConfiguration("/testSpringContextHttp.xml")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class HttpServerServiceTestUser {
+class TestHttpUser {
 
     private static final String CONTEXT = "/v1/user";
 

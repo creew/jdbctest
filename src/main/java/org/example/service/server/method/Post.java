@@ -9,6 +9,8 @@ import org.example.service.JsonConverter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 
 import static org.example.service.server.method.CodesConstants.HTTP_MESSAGE_OK;
@@ -21,8 +23,9 @@ public class Post implements HttpMethodRunner {
         long key = Long.parseLong(paths[0]);
         User user = JsonConverter.parseRequestBody(User.class, is);
         repository.update(key, user);
-        Response response = new Response(HttpURLConnection.HTTP_OK);
-        JsonConverter.writeMessage(new WriterOutputStream(response.getBody()), HTTP_MESSAGE_OK);
-        return response;
+        try (Writer writer = new StringWriter()) {
+            JsonConverter.writeMessage(new WriterOutputStream(writer), HTTP_MESSAGE_OK);
+            return new Response(HttpURLConnection.HTTP_OK, writer);
+        }
     }
 }

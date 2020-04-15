@@ -17,7 +17,7 @@ import java.sql.Connection;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/testSpringContext.xml")
+@ContextConfiguration("/testJdbcCrudContext.xml")
 public class TestExample {
 
     private static final String DB = "test";
@@ -74,9 +74,9 @@ public class TestExample {
 
     @Test
     void shouldFailNotExistId(@Autowired CrudRepository<Long, User> repo) throws CrudException {
-        assertThrows(CrudExceptionNotFound.class, () -> repo.read(100L));
-        assertThrows(CrudExceptionNotFound.class, () -> repo.update(100L, new User("1", "2", "asd@ad.ry")));
-        assertThrows(CrudExceptionNotFound.class, () -> repo.delete(100L));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.read(100000L));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.update(100000L, new User("1", "2", "asd@ad.ry")));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.delete(100000L));
     }
 
     User createMaliciuosEntity() {

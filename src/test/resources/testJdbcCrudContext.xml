@@ -3,7 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-
     <bean id="serviceJdbcConnection" class="org.example.service.connection.JdbcConnectionPostgre">
         <!-- inject any dependencies required by this locator bean -->
     </bean>
@@ -15,9 +14,5 @@
 
     <bean id="crudRepository" class="org.example.dao.CrudRepositoryUser">
         <constructor-arg ref="connection"/>
-    </bean>
-
-    <bean id="httpRestService" class="org.example.service.server.JettyRestService">
-        <constructor-arg value="8080"/>
     </bean>
 </beans>

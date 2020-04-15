@@ -1,6 +1,5 @@
 package org.example.dao;
 
-import org.example.entity.Client;
 import org.example.entity.User;
 import org.example.exception.EntityException;
 
