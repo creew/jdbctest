@@ -1,5 +1,6 @@
 package org.example.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.exception.JsonException;
 
@@ -27,17 +28,19 @@ public class JsonConverter {
     public static <T>T parseRequestBody(Class<T> clazz, InputStream is) throws JsonException {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
             return mapper.readValue(is, clazz);
         } catch (IOException e) {
             throw new JsonException("Error parse body");
         }
     }
 
-    public static Writer writeClient(Object client) throws JsonException {
+    public static Writer writeClient(Object object) throws JsonException {
         StringWriter sw = new StringWriter();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.writeValue(sw, client);
+            mapper.writeValue(sw, object);
             return sw;
         } catch (IOException e) {
             throw new JsonException("Write class error");

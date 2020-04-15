@@ -6,7 +6,7 @@ import org.example.exception.EntityException;
 
 import java.sql.Connection;
 
-public class CrudRepositoryUser extends AbstractRepository<Long, Client> {
+public class CrudRepositoryUser extends AbstractRepository<User> {
     public CrudRepositoryUser(Connection connection) throws EntityException {
         super(connection);
         super.init(User.class);

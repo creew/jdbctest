@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractRepository<K, V extends Entity> implements CrudRepository<K, V> {
+public abstract class AbstractRepository<V extends Entity> implements CrudRepository<Long, V> {
 
     private static final String SQL_ERROR = "Sql error: ";
 
@@ -39,7 +39,7 @@ public abstract class AbstractRepository<K, V extends Entity> implements CrudRep
     }
 
     @Override
-    public K create(@NotNull V object) throws CrudException {
+    public Long create(@NotNull V object) throws CrudException {
         Map<String, Object> map;
         try {
             map = object.getNonNullNamesAndValues(object);
@@ -59,7 +59,7 @@ public abstract class AbstractRepository<K, V extends Entity> implements CrudRep
             }
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return (K) generatedKeys.getObject(1);
+                    return Long.parseLong(generatedKeys.getObject(1).toString());
                 } else {
                     throw new CrudException("Creating entity failed, no ID obtained.");
                 }
@@ -70,7 +70,7 @@ public abstract class AbstractRepository<K, V extends Entity> implements CrudRep
     }
 
     @Override
-    public V read(@NotNull K key) throws CrudException {
+    public V read(@NotNull Long key) throws CrudException {
         String sqlSelect = "SELECT " + String.join(", ", namesAndFields.keySet()) + " FROM " + table
                 + " WHERE " + id + " = ?";
         try (PreparedStatement statement = connection.prepareStatement(sqlSelect)) {
@@ -95,7 +95,7 @@ public abstract class AbstractRepository<K, V extends Entity> implements CrudRep
     }
 
     @Override
-    public void update(@NotNull K key, @NotNull V value) throws CrudException {
+    public void update(@NotNull Long key, @NotNull V value) throws CrudException {
         Map<String, Object> nonNull;
         try {
             nonNull = value.getNonNullNamesAndValues(value);
@@ -119,7 +119,7 @@ public abstract class AbstractRepository<K, V extends Entity> implements CrudRep
     }
 
     @Override
-    public void delete(@NotNull K key) throws CrudException {
+    public void delete(@NotNull Long key) throws CrudException {
         String sqlDelete = "DELETE FROM " + table
                 + " WHERE " + id + " = " + key;
         try (PreparedStatement statement = connection.prepareStatement(sqlDelete)) {
