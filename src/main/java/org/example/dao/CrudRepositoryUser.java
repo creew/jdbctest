@@ -7,7 +7,6 @@ import java.sql.Connection;
 
 public class CrudRepositoryUser extends AbstractRepository<User> {
     public CrudRepositoryUser(Connection connection) throws EntityException {
-        super(connection);
-        super.init(User.class);
+        super(connection, User.class);
     }
 }

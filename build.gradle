@@ -1,8 +1,6 @@
-plugins {
-    id 'java'
-    id 'jacoco'
-    id 'war'
-}
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'war'
 
 group 'org.example'
 version '1.0-SNAPSHOT'
@@ -40,6 +38,17 @@ dependencies {
 
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.jooq:jooq-codegen:3.13.1'
+        classpath 'org.postgresql:postgresql:42.2.12'
+    }
+}
+
 test {
     useJUnitPlatform()
 }
@@ -52,3 +61,41 @@ task fatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+// Use your favourite XML builder to construct the code generation configuration file
+// ----------------------------------------------------------------------------------
+
+def writer = new StringWriter()
+def xml = new groovy.xml.MarkupBuilder(writer)
+        .configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd') {
+            jdbc() {
+                driver('org.postgresql.Driver')
+                url('jdbc:postgresql://localhost/service_db')
+                user('admin')
+                password('pass')
+            }
+            generator() {
+                database() {
+                    inputSchema("public")
+                    name('org.jooq.meta.postgres.PostgresDatabase')
+                    includes('.*')
+                }
+
+                // Watch out for this caveat when using MarkupBuilder with "reserved names"
+                // - https://github.com/jOOQ/jOOQ/issues/4797
+                // - http://stackoverflow.com/a/11389034/521799
+                // - https://groups.google.com/forum/#!topic/jooq-user/wi4S9rRxk4A
+                generate([:]) {
+                    pojos true
+                    daos true
+                }
+                target() {
+                    packageName('org.jooq.example.gradle.db')
+                    directory('src/main/java')
+                }
+            }
+        }
+
+// Run the code generator
+// ----------------------
+org.jooq.codegen.GenerationTool.generate(writer.toString())
