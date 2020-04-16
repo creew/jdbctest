@@ -7,6 +7,7 @@
 
     <bean id="httpRestService" class="org.example.service.server.HttpRestService">
         <constructor-arg ref="crudRepository"/>
+        <constructor-arg value="${server.host}"/>
         <constructor-arg value="8080"/>
     </bean>
 </beans>

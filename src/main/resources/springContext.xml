@@ -31,6 +31,7 @@
     </bean>
 
     <bean id="serverService" class="org.example.service.server.JettyRestService">
-        <constructor-arg value="8080"/>
+        <constructor-arg value="${server.host}"/>
+        <constructor-arg value="${server.port}"/>
     </bean>
 </beans>

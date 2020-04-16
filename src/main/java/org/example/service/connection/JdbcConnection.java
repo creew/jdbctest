@@ -12,14 +12,8 @@ public class JdbcConnection {
 
     private String password;
 
-    public Connection getConnection() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return connection;
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
     }
 
     public void setUrl(String url) {

@@ -26,9 +26,9 @@ public class HttpRestService implements ServerService {
 
     private HttpServer server;
 
-    public HttpRestService(CrudRepository<Long, User> repository, int port) throws IOException {
+    public HttpRestService(CrudRepository<Long, User> repository, String host, int port) throws IOException {
         this.repository = repository;
-        server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
+        server = HttpServer.create(new InetSocketAddress(host, port), 0);
         server.createContext(CONTEXT, new MyHttpHandler());
         server.setExecutor(Executors.newFixedThreadPool(10));
     }

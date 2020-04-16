@@ -3,12 +3,14 @@ package org.example.service.server;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import java.net.InetSocketAddress;
+
 public class JettyRestService implements ServerService {
 
     private final Server serverInstance;
 
-    public JettyRestService(int port) {
-        serverInstance = new Server(port);
+    public JettyRestService(String host, int port) {
+        serverInstance = new Server(new InetSocketAddress(host, port));
 
 /*
         String contextPath = "/v1";

@@ -6,6 +6,7 @@
     <import resource="classpath:testJdbcCrudContext.xml"/>
 
     <bean id="httpRestService" class="org.example.service.server.JettyRestService">
+        <constructor-arg value="${server.host}"/>
         <constructor-arg value="8081"/>
     </bean>
 </beans>
