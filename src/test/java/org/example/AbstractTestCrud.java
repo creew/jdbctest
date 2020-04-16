@@ -7,26 +7,19 @@ import org.example.exception.CrudException;
 import org.example.exception.CrudExceptionNotFound;
 import org.example.service.connection.JdbcConnection;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Connection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration("/testSpringContext.xml")
-public class TestExample {
-
-    private static final String DB = "test";
+public abstract class AbstractTestCrud {
 
     @Autowired
-    Connection connection;
+    private Connection connection;
 
     @Autowired
-    JdbcConnection jdbcConnection;
+    private JdbcConnection jdbcConnection;
 
     @Test
     void shouldOkCreateRepo() {
@@ -74,9 +67,9 @@ public class TestExample {
 
     @Test
     void shouldFailNotExistId(@Autowired CrudRepository<Long, User> repo) throws CrudException {
-        assertThrows(CrudExceptionNotFound.class, () -> repo.read(100L));
-        assertThrows(CrudExceptionNotFound.class, () -> repo.update(100L, new User("1", "2", "asd@ad.ry")));
-        assertThrows(CrudExceptionNotFound.class, () -> repo.delete(100L));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.read(100000L));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.update(100000L, new User("1", "2", "asd@ad.ry")));
+        assertThrows(CrudExceptionNotFound.class, () -> repo.delete(100000L));
     }
 
     User createMaliciuosEntity() {

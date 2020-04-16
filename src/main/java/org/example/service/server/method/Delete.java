@@ -8,6 +8,8 @@ import org.example.service.JsonConverter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 
 import static org.example.service.server.method.CodesConstants.HTTP_MESSAGE_OK;
@@ -18,8 +20,9 @@ public class Delete implements HttpMethodRunner {
         if (paths.length != 1)
             throw new NumberFormatException();
         repository.delete(Long.parseLong(paths[0]));
-        Response response = new Response(HttpURLConnection.HTTP_NO_CONTENT);
-        JsonConverter.writeMessage(new WriterOutputStream(response.getBody()), HTTP_MESSAGE_OK);
-        return response;
+        try (Writer writer = new StringWriter()) {
+            JsonConverter.writeMessage(new WriterOutputStream(writer), HTTP_MESSAGE_OK);
+            return new Response(HttpURLConnection.HTTP_NO_CONTENT);
+        }
     }
 }

@@ -25,13 +25,10 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
 
     private String id;
 
-    private Class<?> clazz;
+    private Class<V> clazz;
 
-    public AbstractRepository(Connection connection) {
+    public AbstractRepository(Connection connection, Class<V> clazz) throws EntityException {
         this.connection = connection;
-    }
-
-    protected void init(Class<?> clazz) throws EntityException {
         this.clazz = clazz;
         namesAndFields = Entities.getNamesAndFields(clazz);
         table = Entities.getTableName(clazz);
@@ -42,7 +39,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
     public Long create(@NotNull V object) throws CrudException {
         Map<String, Object> map;
         try {
-            map = object.getNonNullNamesAndValues(object);
+            map = Entities.getNonNullNamesAndValues(object);
         } catch (EntityException e) {
             throw new CrudException(e.getMessage());
         }
@@ -69,26 +66,30 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
         }
     }
 
+    private V executeSelect(PreparedStatement statement) throws CrudException, SQLException {
+        try (ResultSet rs = statement.executeQuery()) {
+            if (rs.next()) {
+                V client = clazz.getDeclaredConstructor().newInstance();
+                for (Map.Entry<String, String> entry : namesAndFields.entrySet()) {
+                    client.setValue(entry.getValue(), rs.getObject(entry.getKey()));
+                }
+                return client;
+            }
+            throw new CrudExceptionNotFound();
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new CrudException("Reflection error: " + e.getMessage());
+        } catch (NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+            throw new CrudException("Reflection error create instance: " + e.getMessage());
+        }
+    }
+
     @Override
     public V read(@NotNull Long key) throws CrudException {
         String sqlSelect = "SELECT " + String.join(", ", namesAndFields.keySet()) + " FROM " + table
                 + " WHERE " + id + " = ?";
         try (PreparedStatement statement = connection.prepareStatement(sqlSelect)) {
             statement.setObject(1, key);
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    V client = (V) clazz.getDeclaredConstructor().newInstance();
-                    for (Map.Entry<String, String> entry : namesAndFields.entrySet()) {
-                        client.setValue(entry.getValue(), rs.getObject(entry.getKey()));
-                    }
-                    return client;
-                }
-                throw new CrudExceptionNotFound();
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                throw new CrudException("Reflection error: " + e.getMessage());
-            } catch (NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-                throw new CrudException("Reflection error create instance: " + e.getMessage());
-            }
+            return executeSelect(statement);
         } catch (SQLException e) {
             throw new CrudException(SQL_ERROR + e.getMessage());
         }
@@ -98,7 +99,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
     public void update(@NotNull Long key, @NotNull V value) throws CrudException {
         Map<String, Object> nonNull;
         try {
-            nonNull = value.getNonNullNamesAndValues(value);
+            nonNull = Entities.getNonNullNamesAndValues(value);
         } catch (EntityException e) {
             throw new CrudException(e.getMessage());
         }

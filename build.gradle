@@ -1,8 +1,6 @@
-plugins {
-    id 'java'
-    id 'jacoco'
-    id 'war'
-}
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'war'
 
 group 'org.example'
 version '1.0-SNAPSHOT'
@@ -17,27 +15,36 @@ build.dependsOn jacocoTestReport
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    compile group: 'com.h2database', name: 'h2', version: '1.4.200'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
-
-    compile 'org.jetbrains:annotations:16.0.2'
-
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
 
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
 
+    compile group: 'com.h2database', name: 'h2', version: '1.4.200'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+    compile 'org.jetbrains:annotations:16.0.2'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
     compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.28.v20200408'
     compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: '9.4.28.v20200408'
-
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-core', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
-    testCompile group: 'org.springframework', name: 'spring-test', version: '5.2.5.RELEASE'
-    compile group: 'org.springframework', name: 'spring-web', version: '5.2.5.RELEASE'
 
+    compile group: 'org.springframework', name: 'spring-web', version: '5.2.5.RELEASE'
     compile group: 'org.jooq', name: 'jooq', version: '3.13.1'
 
+    testCompile group: 'org.springframework', name: 'spring-test', version: '5.2.5.RELEASE'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.jooq:jooq-codegen:3.13.1'
+        classpath 'org.postgresql:postgresql:42.2.12'
+    }
 }
 
 test {
@@ -52,3 +59,41 @@ task fatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+// Use your favourite XML builder to construct the code generation configuration file
+// ----------------------------------------------------------------------------------
+
+def writer = new StringWriter()
+def xml = new groovy.xml.MarkupBuilder(writer)
+        .configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd') {
+            jdbc() {
+                driver('org.postgresql.Driver')
+                url('jdbc:postgresql://localhost/service_db')
+                user('admin')
+                password('pass')
+            }
+            generator() {
+                database() {
+                    inputSchema("public")
+                    name('org.jooq.meta.postgres.PostgresDatabase')
+                    includes('.*')
+                }
+
+                // Watch out for this caveat when using MarkupBuilder with "reserved names"
+                // - https://github.com/jOOQ/jOOQ/issues/4797
+                // - http://stackoverflow.com/a/11389034/521799
+                // - https://groups.google.com/forum/#!topic/jooq-user/wi4S9rRxk4A
+                generate([:]) {
+                    pojos true
+                    daos true
+                }
+                target() {
+                    packageName('org.example.jooq.db')
+                    directory('src/main/java')
+                }
+            }
+        }
+
+// Run the code generator
+// ----------------------
+org.jooq.codegen.GenerationTool.generate(writer.toString())

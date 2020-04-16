@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="connectionContext.xml"/>
+
+    <bean id="dslContext" class="org.jooq.impl.DSL"
+          factory-method="using">
+        <constructor-arg ref="connection"/>
+        <constructor-arg>
+            <value type="org.jooq.SQLDialect">POSTGRES</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="crudRepository" class="org.example.dao.CrudRepositoryUserJooq">
+        <constructor-arg ref="dslContext"/>
+    </bean>
+</beans>
