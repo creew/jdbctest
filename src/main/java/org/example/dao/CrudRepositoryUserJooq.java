@@ -3,30 +3,23 @@ package org.example.dao;
 import org.example.entity.User;
 import org.example.exception.CrudException;
 import org.example.exception.CrudExceptionNotFound;
-import org.example.jooq.db.tables.records.UsersRecord;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.SQLDialect;
-import org.jooq.impl.DSL;
-
-import java.sql.Connection;
 
 import static org.example.jooq.db.tables.Users.USERS;
 
 public class CrudRepositoryUserJooq implements CrudRepository<Long, User> {
 
-    private Connection connection;
+    private DSLContext dslContext;
 
-    public CrudRepositoryUserJooq(Connection connection) {
-        this.connection = connection;
+    public CrudRepositoryUserJooq(DSLContext dslContext) {
+        this.dslContext = dslContext;
     }
 
     @Override
     public Long create(@NotNull User value) throws CrudException {
-        DSLContext create = DSL.using(
-                connection, SQLDialect.POSTGRES);
-        Record record = create.insertInto(USERS, USERS.LOGIN, USERS.PASSWORD, USERS.EMAIL, USERS.FIRST_NAME, USERS.LAST_NAME)
+        Record record = dslContext.insertInto(USERS, USERS.LOGIN, USERS.PASSWORD, USERS.EMAIL, USERS.FIRST_NAME, USERS.LAST_NAME)
                 .values(value.getLogin(), value.getPassword(), value.getEmail(), value.getFirstName(), value.getLastName())
                 .returningResult(USERS.USER_ID)
                 .fetchOne();
@@ -36,25 +29,23 @@ public class CrudRepositoryUserJooq implements CrudRepository<Long, User> {
 
     @Override
     public User read(@NotNull Long key) throws CrudException {
-        DSLContext create = DSL.using(
-                connection, SQLDialect.POSTGRES);
-        UsersRecord usersRecord = create.selectFrom(USERS)
+        User user = dslContext.selectFrom(USERS)
                 .where(USERS.USER_ID.eq(key.intValue()))
-                .fetchAny();
-        if (usersRecord == null)
+                .fetchAny(record -> {
+                    User inUser = new User(record.getLogin(), record.getPassword(), record.getEmail());
+                    inUser.setFirstName(record.getFirstName());
+                    inUser.setLastName(record.getLastName());
+                    inUser.setId(record.getUserId());
+                    return inUser;
+                });
+        if (user == null)
             throw new CrudExceptionNotFound();
-        User user = new User(usersRecord.getLogin(), usersRecord.getPassword(), usersRecord.getEmail());
-        user.setFirstName(usersRecord.getFirstName());
-        user.setLastName(usersRecord.getLastName());
-        user.setId(usersRecord.getUserId());
         return user;
     }
 
     @Override
     public void update(@NotNull Long key, @NotNull User value) throws CrudException {
-        DSLContext create = DSL.using(
-                connection, SQLDialect.POSTGRES);
-        if (create.update(USERS)
+        if (dslContext.update(USERS)
                 .set(USERS.LOGIN, value.getLogin())
                 .set(USERS.PASSWORD, value.getPassword())
                 .set(USERS.EMAIL, value.getEmail())
@@ -68,9 +59,7 @@ public class CrudRepositoryUserJooq implements CrudRepository<Long, User> {
 
     @Override
     public void delete(@NotNull Long key) throws CrudException {
-        DSLContext create = DSL.using(
-                connection, SQLDialect.POSTGRES);
-        if (create.deleteFrom(USERS)
+        if (dslContext.deleteFrom(USERS)
                 .where(USERS.USER_ID.eq(key.intValue()))
                 .execute() == 0)
             throw new CrudExceptionNotFound();

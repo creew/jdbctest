@@ -3,16 +3,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="serviceJdbcConnection" class="org.example.service.connection.JdbcConnectionPostgre">
-        <!-- inject any dependencies required by this locator bean -->
+    <import resource="connectionContext.xml"/>
+
+    <bean id="dslContext" class="org.jooq.impl.DSL"
+          factory-method="using">
+        <constructor-arg ref="connection"/>
+        <constructor-arg>
+            <value type="org.jooq.SQLDialect">POSTGRES</value>
+        </constructor-arg>
     </bean>
 
-    <bean id="connection"
-          factory-bean="serviceJdbcConnection"
-          factory-method="getConnection"
-    />
-
     <bean id="crudRepository" class="org.example.dao.CrudRepositoryUserJooq">
-        <constructor-arg ref="connection"/>
+        <constructor-arg ref="dslContext"/>
     </bean>
 </beans>

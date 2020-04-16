@@ -15,13 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractTestCrud {
 
-    private static final String DB = "test";
+    @Autowired
+    private Connection connection;
 
     @Autowired
-    Connection connection;
-
-    @Autowired
-    JdbcConnection jdbcConnection;
+    private JdbcConnection jdbcConnection;
 
     @Test
     void shouldOkCreateRepo() {

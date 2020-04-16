@@ -5,7 +5,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/testJooqJdbcCrudContext.xml")
+@ContextConfiguration("/testJdbcCrudContext.xml")
 public class TestCrudJdbc extends AbstractTestCrud {
 
 }

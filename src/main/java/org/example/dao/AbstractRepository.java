@@ -39,7 +39,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
     public Long create(@NotNull V object) throws CrudException {
         Map<String, Object> map;
         try {
-            map = object.getNonNullNamesAndValues(object);
+            map = Entities.getNonNullNamesAndValues(object);
         } catch (EntityException e) {
             throw new CrudException(e.getMessage());
         }
@@ -99,7 +99,7 @@ public abstract class AbstractRepository<V extends Entity> implements CrudReposi
     public void update(@NotNull Long key, @NotNull V value) throws CrudException {
         Map<String, Object> nonNull;
         try {
-            nonNull = value.getNonNullNamesAndValues(value);
+            nonNull = Entities.getNonNullNamesAndValues(value);
         } catch (EntityException e) {
             throw new CrudException(e.getMessage());
         }
