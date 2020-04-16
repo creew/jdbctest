@@ -7,18 +7,13 @@ import org.example.exception.CrudException;
 import org.example.exception.CrudExceptionNotFound;
 import org.example.service.connection.JdbcConnection;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Connection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration("/testJdbcCrudContext.xml")
-public class TestExample {
+public abstract class AbstractTestCrud {
 
     private static final String DB = "test";
 
